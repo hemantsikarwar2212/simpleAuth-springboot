@@ -9,8 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Configuration
 public class SecurityConfig {
   @Autowired
-  private JwtFilter jwtFilter;
-
+  private OAuthSuccessHandler successHandler;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -18,10 +17,10 @@ public class SecurityConfig {
     http
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/auth/**").permitAll() // allow login/signup
+            .requestMatchers("/auth/**", "/oauth2/**").permitAll()
             .anyRequest().authenticated())
-        .addFilterBefore(jwtFilter,
-            org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+        .oauth2Login(oauth -> oauth
+            .successHandler(successHandler));
 
     return http.build();
   }

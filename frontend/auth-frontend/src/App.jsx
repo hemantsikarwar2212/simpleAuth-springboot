@@ -1,4 +1,4 @@
-import React, { useState , useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 
@@ -11,6 +11,28 @@ function App() {
 
   const API = "http://localhost:8080/auth";
 
+  // Handle OAuth + Persist Login
+  useEffect(() => {
+    // OAuth token from URL
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    if (token) {
+      localStorage.setItem("token", token);
+      setIsAuthenticated(true);
+
+      // Clean URL
+      window.history.replaceState({}, document.title, "/");
+    }
+
+    // Persist login after refresh
+    const existingToken = localStorage.getItem("token");
+    if (existingToken) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  //  Handle Signup/Login
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -22,7 +44,7 @@ function App() {
         });
 
         localStorage.setItem("token", res.data);
-        setIsAuthenticated(true); // ✅ switch to dashboard
+        setIsAuthenticated(true);
       } else {
         await axios.post(`${API}/signup`, {
           email,
@@ -37,6 +59,7 @@ function App() {
     }
   };
 
+  //  Logout
   const logout = () => {
     localStorage.removeItem("token");
     setIsAuthenticated(false);
@@ -44,13 +67,13 @@ function App() {
     setPassword("");
   };
 
-  // ✅ DASHBOARD UI
+  //  Dashboard UI
   if (isAuthenticated) {
     return (
       <div className="container">
         <div className="card">
-          <h2>Welcome</h2>
-          <p>You are logged in 🎉</p>
+          <h2>Welcome to Dashboard successfully logged in</h2>
+          
 
           <button onClick={logout}>Logout</button>
         </div>
@@ -58,7 +81,7 @@ function App() {
     );
   }
 
-  // ✅ LOGIN / SIGNUP UI
+  //  Login / Signup UI
   return (
     <div className="container">
       <div className="card">
@@ -83,6 +106,17 @@ function App() {
 
           <button type="submit">{isLogin ? "Login" : "Signup"}</button>
         </form>
+
+        {/* ✅ Google OAuth Button */}
+        <button
+          type="button"
+          onClick={() => {
+            window.location.href =
+              "http://localhost:8080/oauth2/authorization/google";
+          }}
+        >
+          Continue with Google
+        </button>
 
         <p onClick={() => setIsLogin(!isLogin)} className="toggle">
           {isLogin

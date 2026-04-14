@@ -38,13 +38,13 @@ public class JwtFilter extends OncePerRequestFilter {
       try {
         String email = jwtUtil.extractEmail(token);
 
-        // ✅ CREATE AUTH OBJECT
+        // CREATE AUTH OBJECT
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
             email,
             null,
             Collections.singletonList(new SimpleGrantedAuthority("USER")));
 
-        // ✅ SET IN CONTEXT
+        // SET IN CONTEXT
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
       } catch (Exception e) {
